@@ -53,6 +53,7 @@ und settings -C++IgnorePreprocessorConditionals on $database.udb
 
 # Add additional include paths
 und settings -c++includesadd $HOME/include/ $database.udb
+und settings -c++includesadd $HOME/include/glib-2.0 $database.udb
 und settings -c++includesadd /usr/include/linux $database.udb
 und settings -c++includesadd /usr/include/sys $database.udb
 und settings -c++includesadd /usr/include/c++/4.4.4/tr1/ $database.udb
