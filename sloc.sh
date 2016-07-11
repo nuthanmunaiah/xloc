@@ -48,6 +48,15 @@ und settings -metricsDeclaredInFileDisplayMode RelativePath $database.udb
 und settings -metricsWriteColumnTitles off $database.udb
 und settings -metrics CountLineCode $database.udb
 
+# Ignore preprocessor conditionals
+und settings -C++IgnorePreprocessorConditionals on $database.udb
+
+# Add additional include paths
+und settings -c++includesadd $HOME/include/ $database.udb
+und settings -c++includesadd /usr/include/linux $database.udb
+und settings -c++includesadd /usr/include/sys $database.udb
+und settings -c++includesadd /usr/include/c++/4.4.4/tr1/ $database.udb
+
 # Analyze
 
 und analyze $database.udb
