@@ -28,3 +28,30 @@ class Function(models.Model):
 
     def __ne__(self, other):
         return self.identity != other.identity
+
+
+class File(models.Model):
+    name = models.CharField(max_length=255, blank=False, unique=True)
+    sloc = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'file'
+
+    @property
+    def identity(self):
+        return self.name
+
+    def __str__(self):
+        return self.identity
+
+    def __repr__(self):
+        return self.identity
+
+    def __hash__(self):
+        return hash(self.identity)
+
+    def __eq__(self, other):
+        return self.identity == other.identity
+
+    def __ne__(self, other):
+        return self.identity != other.identity

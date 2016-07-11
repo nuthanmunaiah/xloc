@@ -1,14 +1,14 @@
 import csv
 import os
 import sys
+import statistics
 
 from optparse import make_option, OptionValueError
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-
 from app.lib import logger
-from app.models import Function
+from app.models import Function, File
 
 
 class Command(BaseCommand):
@@ -33,9 +33,8 @@ class Command(BaseCommand):
         if not source or not os.path.exists(os.path.expanduser(source)):
             raise Exception('{0} is not a valid CSV path'.format(source))
 
-        function = None
-        duplicates = list()
         functions = set()
+        files = set()
         with open(source) as file_:
             reader = csv.reader(file_)
             for row in reader:
@@ -53,20 +52,41 @@ class Command(BaseCommand):
                     if function not in functions:
                         functions.add(function)
                     else:
-                        duplicates.append(function)
-                        function = [f for f in functions if f == function][0]
-                        duplicates.append(function)
-                        functions.remove(function)
+                        functions = self._update(function, functions)
+                elif 'File' in row[0]:
+                    name = row[2]
+                    sloc = int(row[3])
+
+                    file_ = File()
+
+                    file_.name = name
+                    file_.sloc = sloc
+
+                    if file_ not in files:
+                        files.add(file_)
+                    else:
+                        files = self._update(file_, files)
 
         if len(functions) > 0:
             logger.debug('Adding {0} functions.'.format(len(functions)))
             Function.objects.bulk_create(functions)
-
-            if len(duplicates) > 0:
-                for function in duplicates:
-                    logger.debug(
-                        'Duplicate {0} in {1} with {2} SLOC'.format(
-                            function.name, function.file, function.sloc
-                        )
-                    )
             logger.info('Loaded {0} functions.'.format(len(functions)))
+
+        if len(files) > 0:
+            logger.debug('Adding {0} files.'.format(len(files)))
+            File.objects.bulk_create(files)
+            logger.info('Loaded {0} files.'.format(len(files)))
+
+    def _update(self, instance, collection):
+        slocs = [instance.sloc]
+        for item in collection:
+            if item == instance:
+                slocs.append(item.sloc)
+                collection.remove(item)
+                break
+        instance.sloc = round(statistics.mean(slocs), 0)
+        logger.info('Duplicate {0}:{1} replaced with {2}:{3}'.format(
+                item, item.sloc, instance, instance.sloc
+            ))
+        collection.add(instance)
+        return collection
