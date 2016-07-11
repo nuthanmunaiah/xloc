@@ -8,6 +8,7 @@ class Function(models.Model):
 
     class Meta:
         unique_together = ('name', 'file')
+        db_table = 'function'
 
     @property
     def identity(self):
