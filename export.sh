@@ -29,7 +29,7 @@ if [ $count -eq 0 ]; then
     exit 0
 else
     sqlite3 -csv -noheader db.sqlite3 \
-        "SELECT file, name, sloc FROM app_function" 1> $file 2> /dev/null
+        "SELECT name, file, sloc FROM app_function" 1> $file 2> /dev/null
     echo "SLOC exported to $file"
     exit 0
 fi
